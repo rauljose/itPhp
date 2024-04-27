@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+    PHIVE CONFIGURATION SKELETON FILE
+    php -d curl.cainfo=C:\tools\php_tools\cacert.pem c:\tools\php_tools\phive.phar install phpunit
+-->
+<phive xmlns="https://phar.io/phive">
+  <!-- PHIVE CONFIGURATION -->
+  <config home=".phive"/>
+  <!-- DEPENDENCY MANAGEMENT -->
+  <phar name="composer" version="^2.7.4" installed="2.7.4" location="./tools/composer.phar" copy="true"/>
+  <phar name="phpunit" version="^11.1.3" installed="11.1.3" location="./tools/phpunit.phar" copy="true"/>
+
+</phive>

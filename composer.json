@@ -1,0 +1,18 @@
+{
+  "name": "rauljose/it",
+  "description": "iT Classes, functions for php",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Admin",
+      "email": "email@example.com"
+    }
+  ],
+  "autoload": {
+    "classmap": ["src/"]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

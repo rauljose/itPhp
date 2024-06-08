@@ -1,0 +1,34 @@
+
+.clasificaFlexRow {display:flex}
+.clasificaFlexItem {border:1px silver solid}
+.clasificaItemTitle {border-bottom:4px silver double;text-align: center}
+.clasificaItemList {min-width:16em;min-height: 16em!important;list-style: none;}
+.clasificaItemMove {cursor:move;}
+.clasificaItemDontMove {cursor:default;}
+.clasificaItemList LI {
+    width:14em; margin-bottom:1em;margin-top:1em;padding:0.1em 0.5em 0.3em 0.5em;
+    border:1px silver solid;background-color:antiquewhite;color:blue;
+}
+.clasificaToolBar {
+    float:right;
+    font-size:0.8em;
+    margin-top:-0.1em;
+    border:1px outset gray}
+.clasificaToolBar SPAN {
+    cursor: pointer;
+    margin: 0;
+    padding: 0 0.5em;
+    border:none;
+    box-shadow:  6px 6px 10px 0 rgba(0, 0, 0, 0.5), -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+    background-color: rgba(233, 233, 233, 0.25);
+}
+.clasificaToolBar SPAN:hover {color:lightblue;}
+.clasificaToolBar SPAN.pressed {
+    box-shadow:  inset 6px 6px 10px 0 rgba(0, 0, 0, 0.5), inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+}
+.clasificaAllTo {
+    cursor: pointer;
+    padding-left: 3em;
+    color:blue;
+}
+.clasificaAllTo:hover {color:lightblue;}

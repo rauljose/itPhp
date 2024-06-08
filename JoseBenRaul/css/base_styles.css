@@ -1,0 +1,39 @@
+:root {
+    --named-primary: #6200ee;
+    --named-secondary: #018786;
+    --named-tertiary: #018786;
+    --named-error: #b00020;
+
+    --named-on-primary: #fff;
+    --named-on-secondary: #fff;
+    --named-on-error: #fff;
+
+    --named-background: #fff;
+    --named-surface: #fff;
+
+
+    --named-on-surface: #000;
+
+    --named-text-primary-on-background: rgba(0, 0, 0, 0.87);
+    --named-text-secondary-on-background: rgba(0, 0, 0, 0.54);
+    --named-text-hint-on-background: rgba(0, 0, 0, 0.38);
+    --named-text-disabled-on-background: rgba(0, 0, 0, 0.38);
+    --named-text-icon-on-background: rgba(0, 0, 0, 0.38);
+    --named-text-primary-on-light: rgba(0, 0, 0, 0.87);
+    --named-text-secondary-on-light: rgba(0, 0, 0, 0.54);
+    --named-text-hint-on-light: rgba(0, 0, 0, 0.38);
+    --named-text-disabled-on-light: rgba(0, 0, 0, 0.38);
+    --named-text-icon-on-light: rgba(0, 0, 0, 0.38);
+    --named-text-primary-on-dark: white;
+    --named-text-secondary-on-dark: rgba(255, 255, 255, 0.7);
+    --named-text-hint-on-dark: rgba(255, 255, 255, 0.5);
+    --named-text-disabled-on-dark: rgba(255, 255, 255, 0.5);
+    --named-text-icon-on-dark: rgba(255, 255, 255, 0.5);
+
+
+}
+
+.banga {
+    color: #fff;
+    color: var(--named-on-primary, #fff);
+}

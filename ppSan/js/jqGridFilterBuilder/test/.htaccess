@@ -1,0 +1,5 @@
+Options +Indexes
+IndexOptions NameWidth=*
+<IfModule mod_rewrite.c>
+RewriteEngine off
+</IfModule>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es-MX es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clasifica me</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <script>
+        /* globals $ */
+        /*
+            por hacer:
+                sortable
+                hacer jqueryui widget
+         */
+
+        /**
+         * 
+         * @type {{init: clasifica.init, _html: (function(): string), _addValuesDo: clasifica._addValuesDo, _toolbar: (function(*): string), clear: clasifica.clear, refresh: clasifica.refresh, fromTo: clasifica.fromTo, defaults: {valueColumnKey: string, droppable: {classes: {"ui-droppable-active": string}}, valueDisplay: string, valueId: string, draggable: {cancel: string, cursor: string, containment: string, helper: string, scroll: boolean, revert: string}, values: *[], clasificacion: [{label: string, title: string, clasificaId: string},{label: string, title: string, clasificaId: string},{label: string, title: string, clasificaId: string}]}, $element: (jQuery|HTMLElement|*), allTo: clasifica.allTo, options: {}, selector: string, value: (function(): {}), addValues: clasifica.addValues, _clickTo: clasifica._clickTo}}
+         */
+        let clasifica = {
+            $element:$("BODY"),
+            defaults: {
+                'clasificacion': [
+                    {clasificaId:'Nada', label:'X', title:'Sin Permiso'},
+                    {clasificaId:'RO', label:'RO', title:'Sólo Lectura'},
+                    {clasificaId:'RW', label:'RW', title:'Editar'}
+                ],
+                valueId:'user_id', // ie iac_user_id
+                valueDisplay:'nick', // ie nick
+                valueColumnKey:'permiso', // puede_editar has values: Nada, RO o RW
+                'values': [],
+                    // [  {user_id:1, name:'Mary',permiso:'Nada',},],
+                    // o  {1:{name:'Mary',permiso:'RO',},],
+                    // o  {uniqueValue:{user_id:1,name:'Mary',permiso:'Nada',},],
+                    // o {11:"Mary", 12:"Joe",}
+
+                'draggable':{
+                    scroll: true,
+                    cancel: ".clasificaToolBar", // clicking div toolbar no inicia drag
+                    revert: "invalid", // when not dropped, the item will be returned to its initial position
+                    containment: "document",
+                    helper: "clone",
+                    cursor: "move",
+                    //@see https://api.jqueryui.com/draggable/
+                },
+                'droppable':{
+                    classes: {"ui-droppable-active": "custom-state-active"},
+                    //@see https://api.jqueryui.com/droppable/
+                },
+            },
+
+            options:{},
+            selector: ".clasificaItemList",
+
+            init:function(element, options, values) {
+                clasifica.options = $.extend({}, clasifica.defaults, typeof options !== "object" ? {} : options);
+                this.valueId = clasifica.options.valueId;
+                this.valueDisplay = clasifica.options.valueDisplay;
+                this.valueColumnKey = clasifica.options.valueColumnKey;
+                clasifica.$element = $(element);
+                // create html
+                    clasifica.$element.html(clasifica._html());
+
+                if(typeof values !== 'undefined')
+                    clasifica._addValuesDo(values);
+
+                // activate html
+                $(clasifica.selector, clasifica.$element).each(function(){
+                    const $this  = $(this);
+                    // set dropabble
+                        $this.droppable(
+                            $.extend(
+                                {
+                                    accept: `${clasifica.selector} li`,
+                                    drop: function( event, ui ) {$(event.target).append(ui.draggable)},
+                                },
+                                clasifica.options.droppable
+                        ));
+                    // set dragabble
+                        $( "li",$this).draggable(clasifica.options.draggable);
+                });
+            },
+
+            addValues:function(values) {
+                this._addValuesDo(values);
+                this.refresh();
+            },
+
+            refresh:function() {
+                // activate html
+                $(clasifica.selector, clasifica.$element).each(function(){
+                    const $this  = $(this);
+                    // set dropabble
+                    $this.droppable("destroy").droppable(
+                        $.extend(
+                            {
+                                accept: `${clasifica.selector} li`,
+                                drop: function( event, ui ) {$(event.target).append(ui.draggable)},
+                            },
+                            clasifica.options.droppable
+                        ));
+                    // set dragabble
+                    $( "li",$this).draggable(clasifica.options.draggable);
+                });
+            },
+
+            allTo: function(toClasificaId) {
+                if(typeof toClasificaId === 'undefined') {
+                    console.log("clasifica.allTo()", "Missing parameter toClasificaId");
+                    return;
+                }
+                let $to =  $(`.clasificaItemList[data-clasificakey='${toClasificaId}']`, clasifica.$element);
+                if($to.length === 0) {
+                    console.log("clasifica.allTo()", "Invalid clasificaId ", toClasificaId);
+                    return;
+                }
+                $(clasifica.selector, clasifica.$element).each(function() {
+                    let $this = $(this);
+                    if($this.data('clasificakey') !== toClasificaId) {
+                        $this.find("LI").each(function (){ $to.append($(this)); });
+                    }
+                });
+            },
+
+            fromTo: function(fromClasificaId, toClasificaId) {
+                if(typeof fromClasificaId === 'undefined' || typeof toClasificaId === 'undefined') {
+                    console.log("clasifica.fromTo(fromClasificaId, toClasificaId)", "Need 2 parameters fromClasificaId, toClasificaId");
+                    return;
+                }
+                let $from =  $(`.clasificaItemList[data-clasificakey='${fromClasificaId}']`, clasifica.$element);
+                if($from.length === 0) {
+                    console.log("clasifica.fromTo(fromClasificaId, toClasificaId)", "Invalid fromClasificaId: ", fromClasificaId);
+                    return;
+                }
+                let $to =  $(`.clasificaItemList[data-clasificakey='${toClasificaId}']`, clasifica.$element);
+                if($to.length === 0) {
+                    console.log("clasifica.fromTo(fromClasificaId, toClasificaId)", "Invalid toClasificaId ", toClasificaId);
+                    return;
+                }
+                $from.find("LI").each(function(){$to.append($(this));});
+            },
+
+            value:function() {
+                let ret = {}
+                $(clasifica.selector, clasifica.$element).each(function() {
+                    let $this = $(this);
+                    let clasif = $this.data("clasificakey");
+                    ret[clasif] = [];
+                    $this.find("LI").each(function (){
+                        let id = $(this).data("clasificaid");
+                        if(typeof id !== 'undefined')
+                            ret[clasif].push(id);
+                    })
+                });
+                return ret;
+            },
+
+            clear:function() {
+                $(clasifica.selector, clasifica.$element).each(function() {
+                    let $this = $(this);
+                    $this.find("LI").each(function (){ $(this).remove(); });
+                });
+            },
+
+            _addValuesDo:function(values) {
+                let nada = clasifica.options.clasificacion[0].clasificaId;
+                for (let v in values)
+                    if (values.hasOwnProperty(v)) {
+                        let id, label, clasificaId;
+                        if (typeof values[v] === 'object') {
+                            let item = values[v];
+                            id = typeof item[clasifica.valueId] === 'undefined' ? v : item[clasifica.valueId];
+                            label = typeof item[clasifica.valueDisplay] === 'undefined' ? item['id'] : item[clasifica.valueDisplay];
+                            clasificaId = typeof item[clasifica.valueColumnKey ] === 'undefined' ? nada : item[clasifica.valueColumnKey];
+                        } else {
+                            id = v;
+                            label = values[v];
+                            clasificaId = nada;
+                        }
+
+                        let $to = $(`.clasificaItemList[data-clasificakey='${clasificaId}']`, clasifica.$element);
+                        if ($to.length) {
+                            let $li = $(`<li data-clasificaid="${id}">${label}</li>`);
+                            let toolbar = clasifica._toolbar(clasificaId)
+                            if(toolbar.length)
+                                $li.append($(toolbar).on('click',clasifica._clickTo));
+                            $to.append($li.on('click', clasifica._clickTo));
+                        }
+                    }
+            },
+
+            _toolbar: function(clasificaId) {
+                if(typeof clasificaId === 'undefined')
+                    clasificaId = clasifica.options.clasificacion[0]['clasificaId'];
+                let buttons = [];
+                for(const b of clasifica.options.clasificacion) {
+                    const classPressed = clasificaId === b.clasificaId ? "class='pressed'" : "";
+                    const label = typeof b.label === 'undefined' ? b.clasificaId.replaceAll('_', ' ') : b.label;
+                    const title = typeof b.title === 'undefined' ? b.label : b.title;
+                    buttons.push(`<span ${classPressed} title="${title}" data-clasificaTo="${b.clasificaId}">${label}</span>`);
+                }
+                return `<div class="clasificaToolBar">` + buttons.join("\r\n\t") + `</div>`;
+            },
+
+            _html: function() {
+                let columns = [];
+                for(const b of clasifica.options.clasificacion) {
+                    const label = typeof b.label === 'undefined' ? b.clasificaId.replaceAll('_', ' ') : b.label;
+                    const title = typeof b.title === 'undefined' ? label : b.title;
+                    columns.push(`
+                        <div class="clasificaFlexItem" data-clasificaContainer="${b.clasificaId}">
+                            <div class="clasificaItemTitle" data-clasificaTitle="${b.clasificaId}"><h3>${title}</h3></div>
+                                <ul class="clasificaItemList" data-clasificakey="${b.clasificaId}">
+                                </ul>
+                        </div>`
+                    );
+                }
+                return `<div class="clasificaFlexRow">` + columns.join("\r\n") + `\r\n</div>`;
+            },
+
+            _clickTo:function(event) {
+                let target = $(event.target);
+                const sendTo = target.data('clasificato');
+                if(typeof sendTo !== 'string' || sendTo.length === 0)
+                    return;
+                let liElement = $(this).parent();
+                if(typeof liElement === 'undefined' || liElement == null)
+                    return;
+                liElement.find(".clasificaToolBar").children("SPAN").each(function(){$(this).removeClass('pressed');});
+                target.addClass('pressed')
+                $(`.clasificaItemList[data-clasificakey='${sendTo}']`, clasifica.$element).append(liElement);
+            },
+
+        };
+    </script>
+
+    <style>
+        .clasificaTitle {}
+        .clasificaFlexRow {display:flex}
+        .clasificaFlexItem {border:1px silver solid}
+        .clasificaItemTitle {border-bottom:4px silver double;text-align: center}
+        .clasificaItemList {min-width:16em;min-height: 16em!important;list-style: none;}
+        .clasificaItemList LI { cursor:move;
+            width:14em; margin-bottom:1em;margin-top:1em;padding:0.1em 0.5em 0.3em 0.5em;
+            border:1px silver solid;background-color:antiquewhite;color:blue;
+        }
+        .clasificaToolBar {
+            float:right;
+            font-size:0.8em;
+            margin-top:-0.1em;
+            border:1px outset gray}
+        .clasificaToolBar SPAN {
+            cursor: pointer;
+            margin: 0;
+            padding: 0 0.5em;
+            border:none;
+            box-shadow:  6px 6px 10px 0 rgba(0, 0, 0, 0.5), -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+            background-color: rgba(233, 233, 233, 0.25);
+        }
+
+        .clasificaToolBar SPAN.pressed {
+            box-shadow:  inset 6px 6px 10px 0 rgba(0, 0, 0, 0.5), inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+<button type="button" onclick='console.log("clasifica.value()", clasifica.value());'>Get Value ver Consola</button>
+<button type="button" onclick='clasifica.allTo("Nada");'>clasifica.allTo("Nada")</button>
+<button type="button" onclick='clasifica.fromTo("Nada", "RW");'>clasifica.fromTo("Nada", "RW")</button>
+<hr>
+<div class="clasificaTitle"><h2>Title</h2></div>
+<div id="clasifica"></div>
+
+
+
+<script>
+    $(function() {
+    clasifica.init(
+        "#clasifica",
+        {
+            'clasificacion': [
+                {clasificaId:'Nada', label:'X', title:'Sin Permiso'},
+                {clasificaId:'RO', label:'RO', title:'Sólo Lectura'},
+                {clasificaId:'RW', label:'RW', title:'Editar'},
+                {clasificaId:'DE', label:'DEL', title:'Borrar'},
+            ],
+            label:'nick',
+            clasificaId:'permiso',
+        },
+        // {11:"uno", 12:"dos",},
+        // o
+         [{user_id:12, nick:'Mary',permiso:'Nada',}, {user_id:32, nick:'Joe',permiso:'RO',},],
+        // o
+        // { 12:{user_id:12, nick:'Mary',permiso:'Nada',}, 32:{user_id:32, nick:'Joe',permiso:'RO',} },
+        // o
+        // { 'algoUniqueQueNoEsElId':{user_id:12, nick:'Mary',permiso:'Nada',}, 'b':{user_id:32, nick:'Joe',permiso:'RO',} },
+    ); }); </script>
+</body>
+
+</html>

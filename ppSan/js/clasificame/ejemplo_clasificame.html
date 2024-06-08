@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es-MX es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejemplo Clasificame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  <script src="clasificame.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" integrity="sha512-ELV+xyi8IhEApPS/pSj66+Jiw+sOT1Mqkzlh8ExXihe4zfqbWkxPRi8wptXIO9g73FSlhmquFlUOuMSoXz5IRw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="clasificame.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body>
+<h1>Ejemplo de clasificame.js</h1>
+
+<div id="ejemplo_botones" style="margin:2em;padding:1em; border-bottom:1px silver solid">
+    <button type="button" onclick='console.log("clasifica.clasificame(\"value\")", clasifica.clasificame("value"));'>Get Value ver Consola</button>
+    <button type="button" onclick='clasifica.clasificame("allTo","Nada");'> clasifica.clasificame("allTo","Nada")</button>
+    <button type="button" onclick='clasifica.clasificame("fromTo", "Nada", "RW")'> clasifica.clasificame("fromTo", "Nada", "RW")</button>
+    <button type="button" onclick='clasifica.clasificame("readonly");'> clasifica.clasificame("readonly")</button>
+</div>
+
+<script id="ejemplo_script">
+    var clasifica;
+    $(function() {
+        clasifica =
+            $("#clasifica").clasificame({
+                'clasificacion': [
+                    {clasificaId:'Nada', label:'X', title:'Sin Permiso'},
+                    {clasificaId:'RO', label:'RO', title:'Sólo Lectura'},
+                    {clasificaId:'RW', label:'RW', title:'Editar'},
+                    {clasificaId:'IN', label:'IN', title:'Insert'},
+                ],
+                valueId:'user_id', // ie iac_user_id
+                valueDisplay:'nick', // ie nick
+                valueColumnKey:'permiso', // puede_editar has values: Nada, RO o RW
+                values: [{user_id:12, nick:'Mary',permiso:'Nada',}, {user_id:32, nick:'Joe',permiso:'RO',}],
+            });
+        console.log("version clasifica.clasificame(\"version\") = ", clasifica.clasificame("version"));
+        console.log('valores seleccionados $("#clasifica").clasificame("value") = ', $("#clasifica").clasificame("value"));
+        console.log('get option lasifica.clasificame("option", "valueColumnKey")', clasifica.clasificame("option", "valueColumnKey"));
+    });
+</script>
+
+<div class="clasificaTitle"><h2>Title</h2></div>
+<div id="clasifica"></div>
+
+<table style="line-height: 1.3em;margin:3em;border-top:4px double black;">
+    <tr><th>Ejemplo</th>
+        <th><i>
+            <a target="_blank" href="clasificame.js">Ver código js</a> |
+            <a target="_blank" href="clasificame.css">Ver css</a> |
+        </i>
+    <tr>
+        <td style="vertical-align: top;padding:1em; border-right:1px silver solid;">
+            <code id="pon_ejemplo_script" style="white-space: pre">
+            </code>
+            <code id="pon_ejemplo_botones" style="white-space: pre;margin-top:1em;">
+            </code>
+    <td style="vertical-align: top;padding:1em;">
+</table>
+<script>
+    $(function() {
+        $("#pon_ejemplo_script").html($("#ejemplo_script").text());
+        $("#pon_ejemplo_botones").text($("#ejemplo_botones").html().replaceAll("&quot;", "'"));
+    });
+</script>
+</body>
+</html>

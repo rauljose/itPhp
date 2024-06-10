@@ -442,4 +442,46 @@ class SqlIt {
             return (string)$s;
         return $onNotPossibleUse;
     }
+
+
+    public function format($sql):string {
+        $sql = preg_replace_callback("/\\b(SELECT|FROM|WHERE|GROUP BY|HAVING|ORDER BY|ON\\s+DUPLICATE\\s+KEY\\s+UPDATE)\\b(?![^']*')/imuS",
+          function($matches) {return "\n".strtoupper($matches[1]);},
+          trim($sql));
+        $sql = preg_replace_callback("/\\s(STRAIGHT_JOIN|CROSS\\s+JOIN|INNER\\s+JOIN|LEFT\\s+OUTER|RIGHT\\s+OUTER|LEFT\\s+JOIN|RIGHT\\s+JOIN|FULL\\s+JOIN|JOIN)\\b(?![^']*')/imuS",
+          function($matches) {return "\n\t".strtoupper($matches[1]);},
+          $sql);
+        return preg_replace('/\n{2,}/imuS', "\n",$sql);
+    }
+
+    /**
+     * @param string $sql
+     * @param array $values parameters to substitute ? in $sql
+     * @return string
+     */
+    public function showParameters(string $sql, array $values):string {
+        return preg_replace_callback("/(?<!')\\?(?!')/muS",
+          function() use (&$values) { return $this->strit(array_shift($values)); },
+          $sql
+        );
+    }
+
+    public function replaceValuesWith(string $sql):string {
+        $from = stripos($sql, 'FROM');
+        if($from >= 0) {
+            $left = substr($sql, 0, $from);
+            $right = substr($sql, $from);
+        } else {
+            $left  = '';
+            $right = $sql;
+        }
+        $right =  preg_replace("/'((?:[^'\\\]|'')*[^']|(?:[^'\\\]|'')*)'/muSs",
+          '?',
+          $right
+        );
+        return $left . preg_replace("/(\d+\.?\d*)/muSs",
+            '?',
+            $right
+          );
+    }
 }

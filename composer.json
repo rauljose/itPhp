@@ -1,6 +1,6 @@
 {
   "name": "rauljose/it",
-  "description": "iT Classes, functions for php",
+  "description": "iT Utilities for php",
   "license": "MIT",
   "authors": [
     {
@@ -14,5 +14,9 @@
   "config": {
     "optimize-autoloader": true,
     "sort-packages": true
+  },
+  "require": {
+    "ext-mysqli": "*",
+    "ext-iconv": "*"
   }
 }

@@ -7,6 +7,10 @@ function request($keyDefault) {
             $value = strim($post[$key]);
     return $keyDefault;
 }
+function param($key, $default, $strim = true) {
+    $p = mb_scrub( $_REQUEST[$key] ?? $default);
+    return $strim ? strim($p) : $p;
+}
 
 
 
